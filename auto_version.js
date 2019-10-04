@@ -211,7 +211,7 @@ function argParse (args) {
   paramArgs = { operation : 'operation', user : 'user', email : 'email'};
 
   booleanArgs = {force_update : 'force', raise_on_error : '!ignore',  print_stdout : 'result',
-    print_command : 'command', verbose : 'verbose', silent : 'silent', help : 'help' }
+    print_command : 'command', verbose : 'verbose', silent : 'silent', help : 'help', simulate: 'simulate' }
 
   const kwargs = {};
   let cnt = 0;
