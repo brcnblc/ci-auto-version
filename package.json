@@ -1,10 +1,14 @@
 {
   "name": "ci-auto-version",
   "version": "0.1.4",
-  "description": "Auto versioning for continious integration pipelines.",
+  "description": "Auto versioning for continuous integration pipelines.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brcnblc/ci-auto-version.git"
   },
   "keywords": [
     "autoversion",
@@ -14,5 +18,6 @@
     "version"
   ],
   "author": "Bircan Bilici",
-  "license": "ISC"
+  "license": "ISC",
+  "homepage": "https://github.com/brcnblc/ci-auto-version"
 }
