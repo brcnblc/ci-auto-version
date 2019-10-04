@@ -77,9 +77,9 @@ function bumpVersion(version, operation='patch') {
   let [ major, minor, patch ] = version.substring(1).split('.');
 
   switch (operation){
-    case 'major' : major++ ; break;
-    case 'minor' : minor++ ; break;
-    case 'patch' : patch++ ; break;
+    case 'major' : major++ ;minor=0; patch = 0; break;
+    case 'minor' : minor++ ;patch=0; break;
+    case 'patch' : patch++ ;break;
   }
 
   return `${versionPrefix}${major}.${minor}.${patch}`;
@@ -256,7 +256,7 @@ function argParse (args) {
 
 function printHelp(kwargs) {
   const helpText = `
-  Automatic Versioning for Continious Integration
+  Automatic Versioning for Continuous Integration Pipelines
 
   --operation, -o major | minor | patch      Defines the semver digit to increase. Default: patch
   --user, -u <UserName>   Defines username of commit to repository. Default: Latest Commit User
@@ -355,7 +355,7 @@ module.exports = run;
 
 const __name__ = process.argv[1].split('/').pop();
 
-if (__name__ == 'auto_version.js'){
+if (__name__ == 'index.js'){
 
   if (process.argv.length > 2){
     run(process.argv.slice(2))
