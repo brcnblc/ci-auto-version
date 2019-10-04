@@ -130,14 +130,19 @@ function changeVersion(version, kwargs){
     git (`tag ${version} ${force_update ? '-f' : ''}`, kwargs, status)
 
     // Push commit
+    print ('Pushing changes to remote repository...')
     git ('push', kwargs, status)
 
     // Push Tag
     git (`push origin --tags  ${force_update ? '-f' : ''}`, kwargs, status)
 
+
     if (status['error']){
       process.exit(1)
+    } else {
+      print('Sucess.')
     }
+
   }
   catch (error) {
     print(error)
