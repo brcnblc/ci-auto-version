@@ -2,7 +2,7 @@
   "name": "ci-auto-version",
   "version": "0.1.5",
   "description": "Auto versioning for continuous integration pipelines.",
-  "main": "index.js",
+  "main": "auto_version.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

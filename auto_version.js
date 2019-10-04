@@ -277,13 +277,13 @@ function printHelp(kwargs) {
 
   Force update existing tags:
 
-  node .devops/auto_version.js --user UserName --email email@host.com -force
+  node ./node_modules/ci-auto-version/auto_version.js --user UserName --email email@host.com -force
 
   OR
 
-  Show git commands and results:
+  Execute using sh file showing git commands and results :
 
-  .devops/auto_vaersion.sh -u Lorem -e ipsum@example.com -v
+  sh ./node_modules/ci-auto-version/auto_version.sh -u Lorem -e ipsum@example.com -v
 
   `
   print(helpText)

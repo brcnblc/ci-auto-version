@@ -6,4 +6,4 @@ do
    shift
 done
 
-node .devops/auto_version.js $args
+node ./node_modules/ci-auto-version/auto_version.js $args

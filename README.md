@@ -17,11 +17,11 @@
 _Force update existing tags:_
 
 ```javascript
-node .devops/auto_version.js --user UserName --email email@host.com -force
+node ./node_modules/ci-auto-version/auto_version.js --user UserName --email email@host.com -force
 ```
 _OR_
 
-_Show git commands and results:_
+_Execute using sh file showing git commands and results :_
 ```javascript
-.devops/auto_vaersion.sh -u Lorem -e ipsum@example.com -v
+sh ./node_modules/ci-auto-version/auto_version.sh -u Lorem -e ipsum@example.com -v
 ```
