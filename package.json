@@ -1,6 +1,6 @@
 {
   "name": "ci-auto-version",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Auto versioning for continuous integration pipelines.",
   "main": "auto_version.js",
   "scripts": {
