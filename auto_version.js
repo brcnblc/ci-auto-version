@@ -367,7 +367,7 @@ if (__name__ == 'auto_version.js'){
   if (process.argv.length > 2){
     run(process.argv.slice(2))
   } else {
-    run(''.split(' '))
+    run(' '.split(' '))
   }
 
 }
