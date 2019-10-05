@@ -369,5 +369,4 @@ if (__name__ == 'auto_version.js'){
   } else {
     run(''.split(' '))
   }
-
 }
