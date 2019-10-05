@@ -150,7 +150,6 @@ function changeVersion(version, kwargs){
   }
   catch (error) {
     print(error)
-    //print(error)
     process.exit(1)
   }
 }
