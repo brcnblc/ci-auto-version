@@ -6,7 +6,7 @@ const versionPrefix ='v';
 const initialVersion = '1.0.0';
 const packageFile = './package.json';
 const packageVersionField = 'version';
-const envVar = 'AUTO_VERSION';
+const envVar = 'CI_AUTO_VERSION';
 
 
 function getLatestTag(kwargs) {
@@ -268,10 +268,10 @@ function printHelp(kwargs) {
   --operation, -o major | minor | patch      Defines the semver digit to increase. Default: patch
   --user, -u <UserName>   Defines username of commit to repository. Default: Latest Commit User
   --email, -e <E-mail>    Defines email of commit to repository. Default: Latest Commit Email
-  --force-update, -f     Forces update tag if it already exists. Default: false
+  --force, -f           Forces update tag if it already exists. Default: false
   --print-result, -r    Prints result of the git commands to the pipeline terminal. Default : false
   --print-command, -c   Prints git commands to the pipeline terminal. Default : false
-  --ignore-error, -i    Ignores errors and continue process with next command. Default: false (Not Recomended)
+  --ignore-error, -i    Ignores errors and continue process with next command. Default: false (NOT RECOMENDED)
   --verbose, -v   Prints every output to the pipeline termial. Default: false
   --silent, -s    Does not produce any output to the pipeline terminal. Default: false
 
