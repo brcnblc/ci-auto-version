@@ -14,8 +14,10 @@ function getLatestTag(kwargs) {
   // Runs 'git describe --tags' command and return result.
   let version, describeTags;
   try{
+    kwargsTmp=Object.assign({}, kwargs);
+    kwargsTmp.raise_on_error = true;
     describePattern = `${versionPrefix}*.*.*`;
-    describeTags = git(`describe --tags --match "${describePattern}"`, kwargs).replace('\n','');
+    describeTags = git(`describe --tags --match "${describePattern}"`, kwargsTmp).replace('\n','');
 
     commitPattern = `^${versionPrefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)-([0-9]+)-(\\S+)`;
     versionPattern = `^${versionPrefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)$`;
@@ -32,7 +34,7 @@ function getLatestTag(kwargs) {
     return {version, commitPropogated, commit, hash}
     }
   catch (error){
-    return {error: error['stderr']}
+    return error
   }
 
 }
@@ -45,7 +47,9 @@ function getVersionInfo (kwargs){
 
   if ('error' in versionInfo){
     // If no tags found, get it from package.json
-
+    if ('stderr' in versionInfo.error){
+      if (!(versionInfo.error.stderr.includes('No names found'))){process.exit(1)}
+    }
     print('No version tags found, trying to extract version information from package.json.')
 
     try {
@@ -140,7 +144,7 @@ function changeVersion(version, kwargs){
     if (status['error']){
       process.exit(1)
     } else {
-      print('Sucess.')
+      print('\nDone.')
     }
 
   }
@@ -269,7 +273,7 @@ function printHelp(kwargs) {
   --force-update, -f     Forces update tag if it already exists. Default: false
   --print-result, -r    Prints result of the git commands to the pipeline terminal. Default : false
   --print-command, -c   Prints git commands to the pipeline terminal. Default : false
-  --ignore-error, -i    Ignores errors and continue process with next command. Default: false
+  --ignore-error, -i    Ignores errors and continue process with next command. Default: false (Not Recomended)
   --verbose, -v   Prints every output to the pipeline termial. Default: false
   --silent, -s    Does not produce any output to the pipeline terminal. Default: false
 
@@ -349,7 +353,7 @@ function run (arg) {
       email= 'email' in kwArgs ? kwArgs.email : null , // Default value null
       kwargs={
         force_update: 'force_update' in kwArgs ? kwArgs.force_update : false , // Default value false
-        raise_on_error: 'raise_on_error' in kwArgs ? kwArgs.raise_on_error : false , // Default value false
+        raise_on_error: 'raise_on_error' in kwArgs ? kwArgs.raise_on_error : false , // Default value true
         print_stdout: 'print_stdout' in kwArgs ? kwArgs.print_stdout : false , // Default value false
         print_command: 'print_command' in kwArgs ? kwArgs.print_command : false , // Default value false
       });

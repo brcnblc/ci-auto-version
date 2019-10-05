@@ -29,36 +29,20 @@ function git(args, kwargs, status ){
   try{
 
     result = run(`git ${args}`, processOptions)
-
-    printStd(result, keywordArgs)
-
+    if (result['stderr']){throw result}
+    if (print_stdout){console.log(`Result : ${result['stdout']}`)}
+ 
     return result['stdout']
   }
   catch (error) {
-   printStd(error, raise_on_error)
-    if(error['status'] != 0 && raise_on_error){
+
+   console.log(error['stderr'])
+    if(raise_on_error){
       throw {error}
     }
   }
 }
 
-function printStd(obj, kwargs){
-  const { raise_on_error, print_stdout } = kwargs;
-  if (print_stdout && (obj['stdout'] || obj['stderr'])){
-    if (obj['stdout']){
-      console.log(`Result : ${obj['stdout']}`)
-    }
-    if (obj['stderr']){
 
-      if (obj['status'] != 0 && raise_on_error){
-        console.log(`Error : ${obj['stderr']}`)
-        throw {stderr: obj['stderr']}
-      }
-      else {
-        console.log(`Info : ${obj['stderr']}`)
-      }
-    }
-  }
-}
 
 module.exports = { git, run, Print }
