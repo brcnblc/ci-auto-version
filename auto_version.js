@@ -352,7 +352,7 @@ function run (arg) {
       email= 'email' in kwArgs ? kwArgs.email : null , // Default value null
       kwargs={
         force_update: 'force_update' in kwArgs ? kwArgs.force_update : false , // Default value false
-        raise_on_error: 'raise_on_error' in kwArgs ? kwArgs.raise_on_error : false , // Default value true
+        raise_on_error: 'raise_on_error' in kwArgs ? kwArgs.raise_on_error : true , // Default value true
         print_stdout: 'print_stdout' in kwArgs ? kwArgs.print_stdout : false , // Default value false
         print_command: 'print_command' in kwArgs ? kwArgs.print_command : false , // Default value false
       });
