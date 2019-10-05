@@ -148,7 +148,7 @@ function changeVersion(version, kwargs){
     }
 
   }
-  catch ( error) {
+  catch ( error ) {
     if ('stderr' in error){print(error['stderr'])}
     else { print(error)}  
     process.exit(1)
