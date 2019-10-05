@@ -29,8 +29,11 @@ function git(args, kwargs, status ){
   try{
 
     result = run(`git ${args}`, processOptions)
-    if (result['stderr']){throw result}
-    if (print_stdout){console.log(`Result : ${result['stdout']}`)}
+    if (result['stderr'] && result['status'] != 0){throw result}
+    if (print_stdout){
+      console.log(`Result : ${result['stdout']}`)
+      console.log(result['stderr'])
+    }
  
     return result['stdout']
   }
