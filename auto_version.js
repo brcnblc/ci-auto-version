@@ -7,6 +7,7 @@ const initialVersion = '1.0.0';
 const packageFile = './package.json';
 const packageVersionField = 'version';
 const envVar = 'CI_AUTO_VERSION';
+const statList = [];
 
 
 function getLatestTag(kwargs) {
@@ -17,7 +18,7 @@ function getLatestTag(kwargs) {
     kwargsTmp=Object.assign({}, kwargs);
     kwargsTmp.raise_on_error = true;
     describePattern = `${versionPrefix}*.*.*`;
-    describeTags = git(`describe --tags --match "${describePattern}"`, kwargsTmp).replace('\n','');
+    describeTags = git(`describe --tags --match "${describePattern}"`, kwargsTmp, statList, true).replace('\n','');
 
     commitPattern = `^${versionPrefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)-([0-9]+)-(\\S+)`;
     versionPattern = `^${versionPrefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)$`;
@@ -107,7 +108,7 @@ function changePackageJsonVersion(version) {
 
 // Change to New Version
 function changeVersion(version, kwargs){
-  let status = {}
+  
   try{
     const { force_update } = kwargs
 
@@ -120,32 +121,34 @@ function changeVersion(version, kwargs){
     git (`config user.email "${email}"`, kwargs, status)
 
     // Change package.json
-    changePackageJsonVersion(version)
+    if (!kwargs.simulate) {
+      changePackageJsonVersion(version)
+    } else {
+      print(`simulate call to changePackageJsonVersion(${version})`)}
+    
 
     status = {}
 
     // Stage package.json
-    git (`add ${packageFile}`, kwargs, status)
+    git (`add ${packageFile}`, kwargs, statList)
 
     // Commit
-    git (`commit -m "${message}\n[skip CI]"`, kwargs, status)
+    git (`commit -m "${message}\n[skip CI]"`, kwargs, statList)
 
     // Tag
-    git (`tag ${version} ${force_update ? '-f' : ''}`, kwargs, status)
+    git (`tag ${version} ${force_update ? '-f' : ''}`, kwargs, statList)
 
     // Push commit
     print ('Pushing changes to remote repository...')
-    git ('push', kwargs, status)
+    git ('push', kwargs, statList)
 
     // Push Tag
-    git (`push origin --tags  ${force_update ? '-f' : ''}`, kwargs, status)
+    git (`push origin --tags  ${force_update ? '-f' : ''}`, kwargs, statList)
 
 
-    if (status['error']){
-      process.exit(1)
-    } else {
-      print('\nDone.')
-    }
+
+    print('\nDone.')
+    
 
   }
   catch ( error ) {  
@@ -169,8 +172,7 @@ function evaluateVersion(operation='patch', user, email, kwargs) {
 
     // Extract operation from commit message
     const commitMessage = git (`log -1 --pretty=%B`, {print_command : false, print_stdout : false})
-    const pattern = '<-(\\S+)->'
-    match = commitMessage.match(pattern)
+    match = commitMessage.match(kwargs.bump_pattern);
     if (match){
       command = match[1]
       if (['major', 'minor','patch'].includes(command.toLowerCase())){
@@ -199,6 +201,8 @@ function evaluateVersion(operation='patch', user, email, kwargs) {
 
     //Change Version
     changeVersion(newVersion, kwargs)
+    
+    
   }
 
   // There is no commit after latest versioning. Do Nothing.
@@ -213,7 +217,7 @@ function argParse (args) {
   paramArgs = { operation : 'operation', user : 'user', email : 'email'};
 
   booleanArgs = {force_update : 'force', raise_on_error : '!ignore',  print_stdout : 'result',
-    print_command : 'command', verbose : 'verbose', silent : 'silent', help : 'help', dryrun: 'dryrun' }
+    print_command : 'command', verbose : 'verbose', silent : 'silent', help : 'help', simulate: 'simulate' }
 
   const kwargs = {};
   let cnt = 0;
@@ -354,6 +358,8 @@ function run (arg) {
         raise_on_error: 'raise_on_error' in kwArgs ? kwArgs.raise_on_error : true , // Default value true
         print_stdout: 'print_stdout' in kwArgs ? kwArgs.print_stdout : false , // Default value false
         print_command: 'print_command' in kwArgs ? kwArgs.print_command : false , // Default value false
+        bump_pattern: 'bump_pattern' in kwArgs ? kwArgs.bump_command : /[(\S+)]/, // Default [minor], [major]
+        simulate : 'simulate' in kwArgs ? kwArgs.simulate : false
       });
   }
 }
@@ -367,6 +373,6 @@ if (__name__ == 'auto_version.js'){
   if (process.argv.length > 2){
     run(process.argv.slice(2))
   } else {
-    run(''.split(' '))
+    run('--simulate'.split(' '))
   }
 }
