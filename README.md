@@ -95,7 +95,7 @@ sh ./node_modules/ci-auto-version/auto_version.sh -us Lorem -em ipsum@example.co
   Definition : Defines the semver digit to increase.
   Default Value : last_commit_message
 
---user-name, -us [ <UserName> | last_commit_author ] 
+--user-name, -us [ < UserName > | last_commit_author ] 
   Definition : Defines username of commit to repository.
   Default Value : last_commit_author
 
