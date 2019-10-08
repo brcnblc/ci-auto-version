@@ -26,7 +26,7 @@ function git(args, kwargs, status, override_simulate ){
     args += (' --dry-run')
   }
 
-  if (print_command || override_simulate || command_has_dryrun){
+  if (print_command){
     console.log(`Command : git ${args}\n`)
   }
 

@@ -74,6 +74,24 @@
       "definition" : "Prints git commands to the pipeline terminal.",
       "usage" : null
     },
+    "Verbose" : {
+      "variableName" : "verbose",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "verbose",
+      "shortCommand" : "vb",
+      "definition" : "Prints all output including git commands and results to the pipeline terminal.",
+      "usage" : null
+    },
+    "Silent" : {
+      "variableName" : "silent",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "silent",
+      "shortCommand" : "si",
+      "definition" : "Does not print anything rather than errors to the pipeline terminal.",
+      "usage" : null
+    },
     "Major Pattern" : {
       "variableName" : "major_pattern",
       "defaultValue" : "[major]",

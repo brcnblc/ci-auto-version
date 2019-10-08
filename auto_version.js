@@ -165,7 +165,7 @@ function changeVersion(version, kwargs){
       // Set test remote 
       git (`remote set-url --push origin ${kwargs.test_repo}`,kwargs, statList)
       // Push test commit
-      let geturl = git (`remote get-url origin`)
+      let geturl = git (`remote get-url origin`, kwargs, statList)
       print (`Pushing changes to remote test repository ${geturl}`)
       git ('push -u origin master', kwargs, statList)
       // Push Test Tag
@@ -173,7 +173,7 @@ function changeVersion(version, kwargs){
 
     } else {
       // Push commit
-      let geturl = git (`remote get-url origin`)
+      let geturl = git (`remote get-url origin`, kwargs, statList)
       print (`Pushing changes to remote repository ${geturl}`)
       git ('push -u origin master', kwargs, statList)
 
@@ -182,7 +182,7 @@ function changeVersion(version, kwargs){
     }
 
     // Print Complete
-    print('\nOperation Complete.')
+    print('Operation Complete.')
     
   }
   catch ( error ) {  
