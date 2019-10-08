@@ -213,3 +213,4 @@ sh ./node_modules/ci-auto-version/auto_version.sh -us Lorem -em ipsum@example.co
 --create-test-commit, -ct <CommitMessage> 
   Definition : Creates a new test commit to test versioning.
   Default Value : null
+  
