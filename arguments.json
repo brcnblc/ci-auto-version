@@ -2,7 +2,7 @@
   "arguments" : {
     "Operation" : {
       "variableName" : "operation",
-      "defaultValue" : "patch",
+      "defaultValue" : "last_commit_message",
       "type" : "parameter",
       "longCommand" : "operation",
       "shortCommand" : "op",
@@ -244,6 +244,15 @@
       "shortCommand" : "tm",
       "definition" : "Defines commit message for test purposes from where version command is extracted.",
       "usage" : "\"<TestCommitMessage>\""
+    },
+    "Create Test Commit" : {
+      "variableName" : "create_test_commit",
+      "defaultValue" : null,
+      "type" : "parameter",
+      "longCommand" : "create-test-commit",
+      "shortCommand" : "ct",
+      "definition" : "Creates a new test commit to test versioning.",
+      "usage" : "<CommitMessage>"
     }
   },
   "examples" : {

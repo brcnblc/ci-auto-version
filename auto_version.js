@@ -242,6 +242,15 @@ function evaluateVersion(kwargs) {
   }
 }
 
+function create_test_commit(kwargs){
+  const date = new Date();
+  result = fs.writeFileSync('test_file', date.toISOString())
+  git (`add .`, kwargs, statList)
+  git (`status`, kwargs, statList)
+  git (`commit -m "${kwargs.create_test_commit} ${date.toISOString()}"`, kwargs, statList)
+  git (`status`, kwargs, statList)
+}
+
 function run (argString) {
   
   //Parse Args
@@ -298,6 +307,12 @@ function run (argString) {
       process.exit(1);
     }
   }
+
+  //Create test commit
+  if (kwArgs.create_test_commit){
+    create_test_commit(kwArgs)
+  }
+
   // Call Versining Function
   evaluateVersion(kwArgs);
   
