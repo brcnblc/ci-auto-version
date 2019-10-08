@@ -165,14 +165,16 @@ function changeVersion(version, kwargs){
       // Set test remote 
       git (`remote set-url --push origin ${kwargs.test_repo}`,kwargs, statList)
       // Push test commit
-      print ('Pushing changes to remote test repository...')
+      let geturl = git (`remote get-url origin`)
+      print (`Pushing changes to remote test repository ${geturl}`)
       git ('push -u origin master', kwargs, statList)
       // Push Test Tag
       git (`push origin --tags${force_update ? ' -f' : ''}`, kwargs, statList)
 
     } else {
       // Push commit
-      print ('Pushing changes to remote repository...')
+      let geturl = git (`remote get-url origin`)
+      print (`Pushing changes to remote repository ${geturl}`)
       git ('push -u origin master', kwargs, statList)
 
       // Push Tag
@@ -311,12 +313,11 @@ module.exports = run;
 const __name__ = process.argv[1].split('/').pop();
 
 if (__name__ == 'auto_version.js'){
-  console.log(process.argv[1])
+  print(`Process : ${process.argv[1]}`)
   if (process.argv.length > 2){
     run(process.argv.slice(2).join(' '))
   } else {
-    let testRun = '--test-message "this is test [minor] "' + ' --test-run --show-args --test-folder test_folder --test-repo https://github.com/brcnblc/test_ci_auto_version.git';
-    run(testRun)
+    run()
   }
 }
 

@@ -1,6 +1,5 @@
 function parse (argStr, argDefs) {
-  if (!argStr) return {};
-  
+  if (!argStr){argStr=''}
   if (!argDefs) {throw('No Argument Definition provided.')}
   const args = evalStrings(argStr)
   let cnt = 0;
