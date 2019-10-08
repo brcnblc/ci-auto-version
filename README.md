@@ -21,7 +21,7 @@ sample 'bitbucket-pipelines.yml' file
               script: # Modify the commands below to build your repository.
                 - npm install
                 - # npm test
-                - npm install ci-auto-version@0.2.0 --no-save
+                - npm install ci-auto-version@0.3.0 --no-save
                 - node node_modules/ci-auto-version/auto_version.js
             
 The above pipeline automation script will run on every commit to master including merge requests. If you have npm test script in your package please uncomment # npm test line above to run your tests before.
@@ -40,7 +40,7 @@ sample 'bitbucket-pipelines.yml' file
               script: # Modify the commands below to build your repository.
                 - npm install
                 - npm test
-                - npm install ci-auto-version@0.2.0 --no-save
+                - npm install ci-auto-version@0.3.0 --no-save
                 - node node_modules/ci-auto-version/auto_version.js
               services:
                 - postgres
@@ -213,4 +213,4 @@ sh ./node_modules/ci-auto-version/auto_version.sh -us Lorem -em ipsum@example.co
 --create-test-commit, -ct <CommitMessage> 
   Definition : Creates a new test commit to test versioning.
   Default Value : null
-  
+
