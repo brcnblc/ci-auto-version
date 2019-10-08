@@ -243,12 +243,7 @@ function evaluateVersion(kwargs) {
 }
 
 function run (argString) {
-  // Get command line arguments
-  let args = process.argv.slice(2);
-  if (args.length > 0){
-    argString = args.join(' ');
-  }
-
+  
   //Parse Args
   let kwArgs = {};
   try {kwArgs = argParse(argString, argDefinitions);}

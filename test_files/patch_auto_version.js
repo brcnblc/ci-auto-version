@@ -1,2 +1,2 @@
 const auto_version = require('../auto_version');
-auto_version('-si')
+auto_version('-vb')
