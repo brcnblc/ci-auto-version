@@ -21,7 +21,7 @@ sample 'bitbucket-pipelines.yml' file
               script: # Modify the commands below to build your repository.
                 - npm install
                 - # npm test
-                - npm install ci-auto-version --no-save
+                - npm install ci-auto-version@0.3.0 --no-save
                 - node node_modules/ci-auto-version/auto_version.js
             
 The above pipeline automation script will run on every commit to master including merge requests. If you have npm test script in your package please uncomment # npm test line above to run your tests before.
@@ -40,7 +40,7 @@ sample 'bitbucket-pipelines.yml' file
               script: # Modify the commands below to build your repository.
                 - npm install
                 - npm test
-                - npm install ci-auto-version --no-save
+                - npm install ci-auto-version@0.3.0 --no-save
                 - node node_modules/ci-auto-version/auto_version.js
               services:
                 - postgres
@@ -70,6 +70,7 @@ The above code may be used to initiate your pipeline automation with full Postgr
 - Don't forget to change node version according to your package.
 - Install during pipeline is invoked with --no-save , since ci-auto-versioning script modifies package.json and pushs to original repositories master. --no-save enables that our temporary installation during pipeline stays temporary.
 - You may change ci-auto-version command line parameters. Eg. running it with --verbose or -vb , will give more information about the on going process, exposing git commands and their results into the pipeline terminal.
+- If you always want to use latest version of ci-auto-version, you may prefer to install it without version suffix as npm install ci-auto-version. However, it is safer to change version manually after a new release has been published and tested.
 
 ##### Running Pipeline with Environment Variables
 
