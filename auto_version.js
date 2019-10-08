@@ -1,12 +1,9 @@
 const fs = require('fs')
-const git = require('./library.js').git;
-const Print = new require('./library.js').Print.prototype;
+const {git, escapeRegExp} = require('./library');
+const Print = require('./library').Print.prototype;
 const print = function (txt){Print.print(txt)}
-const versionPrefix ='v';
-const initialVersion = '1.0.0';
-const packageFile = './package.json';
-const packageVersionField = 'version';
-const envVar = 'CI_AUTO_VERSION';
+const argParse = require('./argParse');
+const argDefinitions = require('./arguments.json');
 const statList = [];
 
 
@@ -17,11 +14,11 @@ function getLatestTag(kwargs) {
   try{
     kwargsTmp=Object.assign({}, kwargs);
     kwargsTmp.raise_on_error = true;
-    describePattern = `${versionPrefix}*.*.*`;
-    describeTags = git(`describe --tags --match "${describePattern}"`, kwargsTmp, statList, true).replace('\n','');
+    describePattern = `${kwargs.version_prefix}*.*.*`;
+    describeTags = git(`describe --tags --match "${describePattern}"`, kwargsTmp, statList, kwargs.simulate).replace('\n','');
 
-    commitPattern = `^${versionPrefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)-([0-9]+)-(\\S+)`;
-    versionPattern = `^${versionPrefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)$`;
+    commitPattern = `^${kwargs.version_prefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)-([0-9]+)-(\\S+)`;
+    versionPattern = `^${kwargs.version_prefix}([0-9]+)\\.([0-9]+)\\.([0-9]+)$`;
 
     versionMatch = describeTags.match(versionPattern);
     commitMatch = describeTags.match(commitPattern);
@@ -29,7 +26,7 @@ function getLatestTag(kwargs) {
 
     [ full, major, minor, patch, commit, hash ] = match
 
-    version = `${versionPrefix}${major}.${minor}.${patch}`
+    version = `${kwargs.version_prefix}${major}.${minor}.${patch}`
 
     commitPropogated = commitMatch != null
     return {version, commitPropogated, commit, hash}
@@ -44,7 +41,7 @@ function getVersionInfo (kwargs){
 
   const versionInfo = getLatestTag(kwargs)
   let {version, commitPropogated, commit, hash} = versionInfo;
-  let initVersion;
+  let initVersion, processTagOnly;
 
   if ('error' in versionInfo){
     // If no tags found, get it from package.json
@@ -54,15 +51,17 @@ function getVersionInfo (kwargs){
     print('No version tags found, trying to extract version information from package.json.')
 
     try {
-      const content = fs.readFileSync(packageFile)
+      const content = fs.readFileSync(kwargs.package_file)
       packageJson = JSON.parse(content);
-      version = `${versionPrefix}${packageJson[packageVersionField]}`;
-      commitPropogated = true;
+      version = `${kwargs.version_prefix}${packageJson[kwargs.package_version_field]}`;
+      commitPropogated = !git('status', kwargs, statList, true).includes('nothing to commit, working tree clean');
+      processTagOnly = true;
     }
     catch (error){
       // on error set it to default version
-      commitPropogated = true;
+      commitPropogated = !git('status', kwargs, statList, true).includes('nothing to commit, working tree clean');
       initVersion = true;
+      processTagOnly = true;
     }
 
   }
@@ -73,33 +72,48 @@ function getVersionInfo (kwargs){
 
   }
 
-  return {version , commitPropogated, initVersion, commit, hash}
+  return {version , commitPropogated, initVersion, commit, hash, processTagOnly}
 }
 
-function bumpVersion(version, operation='patch') {
+function bumpVersion(version, kwargs) {
 // Increase semver version number
 
   let [ major, minor, patch ] = version.substring(1).split('.');
 
-  switch (operation){
+  switch (kwargs.operation){
     case 'major' : major++ ;minor=0; patch = 0; break;
     case 'minor' : minor++ ;patch=0; break;
     case 'patch' : patch++ ;break;
   }
 
-  return `${versionPrefix}${major}.${minor}.${patch}`;
+  return `${kwargs.version_prefix}${major}.${minor}.${patch}`;
 }
 
-function changePackageJsonVersion(version) {
+function changePackageJsonVersion(version, kwargs) {
   try {
-    const content = fs.readFileSync(packageFile)
+    const content = fs.readFileSync(kwargs.package_file)
     packageJson = JSON.parse(content)
-    packageJson[packageVersionField] = version.substring(1)
+    packageJson[kwargs.package_version_field] = version.substring(1)
 
     let json = JSON.stringify(packageJson, null, 2);
 
-    fs.writeFileSync(packageFile, json);
-    print(`\n${packageFile} '${packageVersionField}' field modified succesfully as '${packageJson[packageVersionField]}'\n`)
+    fs.writeFileSync(kwargs.package_file, json);
+    print(`\n${kwargs.package_file} '${kwargs.package_version_field}' field modified succesfully as '${packageJson[kwargs.package_version_field]}'\n`)
+  }
+  catch (error){
+    throw error
+  }
+}
+
+function comparePackageJsonVersion(version, kwargs){
+  try {
+    const content = fs.readFileSync(kwargs.package_file)
+    packageJson = JSON.parse(content)
+    let versionSame = packageJson[kwargs.package_version_field] == version.substring(1)
+    if (versionSame){
+      print(`\n${kwargs.package_file} '${kwargs.package_version_field}' field same as version '${version}'\n`)
+    }
+    return versionSame
   }
   catch (error){
     throw error
@@ -110,93 +124,108 @@ function changePackageJsonVersion(version) {
 function changeVersion(version, kwargs){
   
   try{
-    const { force_update } = kwargs
-
-    // Latest Commit Autohor, E-Mail, Message
+    // Last Commit Autohor, E-Mail, Message
     const seperator = '_#_'
-    const result = git (`log -1 --pretty=%an${seperator}%ae${seperator}%B`, kwargs, status)
-    const [author, email, message] = result.split(seperator)
+    const result = git (`log -1 --pretty=%an${seperator}%ae${seperator}%B`, kwargs, statList, kwargs.simulate)
+    const [lastCommitAuthor, lastCommitEmail, lastCommitMessage] = result.split(seperator)
+    
+    const user = kwargs.user == 'last_commit_author' ? lastCommitAuthor : kwargs.user;
+    git (`config user.name "${user}"`, kwargs, statList)
 
-    git (`config user.name "${author}"`, kwargs, status)
-    git (`config user.email "${email}"`, kwargs, status)
+    const email = kwargs.email == 'last_commit_email' ? lastCommitEmail : kwargs.email;
+    git (`config user.email "${email}"`, kwargs, statList)
 
     // Change package.json
-    if (!kwargs.simulate) {
-      changePackageJsonVersion(version)
-    } else {
-      print(`simulate call to changePackageJsonVersion(${version})`)}
+    const sameVersion = comparePackageJsonVersion(version, kwargs);
     
+    if (!sameVersion) {
+      if (kwargs.simulate) {
+        print(`simulate call to changePackageJsonVersion(${version})`)
+      } else {
+        changePackageJsonVersion(version, kwargs)
 
-    status = {}
-
-    // Stage package.json
-    git (`add ${packageFile}`, kwargs, statList)
-
-    // Commit
-    git (`commit -m "${message}\n[skip CI]"`, kwargs, statList)
+        // Stage package.json
+        git (`add ${kwargs.package_file}`, kwargs, statList)
+        
+        // Commit
+        let commitMessage = kwargs.commit_message == 'last_commit_message' ? lastCommitMessage : kwargs.commit_message;
+        if (kwargs.skip_ci){
+          commitMessage = `${commitMessage}\n${kwargs.skip_ci_pattern}`
+        }
+        git (`commit -m "${commitMessage}"`, kwargs, statList)
+      }
+      } 
 
     // Tag
-    git (`tag ${version} ${force_update ? '-f' : ''}`, kwargs, statList)
-
-    // Push commit
-    print ('Pushing changes to remote repository...')
-    git ('push', kwargs, statList)
-
-    // Push Tag
-    git (`push origin --tags  ${force_update ? '-f' : ''}`, kwargs, statList)
-
-
-
-    print('\nDone.')
+    const { force_update } = kwargs
+    git (`tag ${version}${force_update ? ' -f' : ''}`, kwargs, statList)
     
+    // Test
+    if (kwargs.test_run){
+      // Set test remote 
+      git (`remote set-url --push origin ${kwargs.test_repo}`,kwargs, statList)
+      // Push test commit
+      print ('Pushing changes to remote test repository...')
+      git ('push -u origin master', kwargs, statList)
+      // Push Test Tag
+      git (`push origin --tags${force_update ? ' -f' : ''}`, kwargs, statList)
 
+    } else {
+      // Push commit
+      print ('Pushing changes to remote repository...')
+      git ('push -u origin master', kwargs, statList)
+
+      // Push Tag
+      git (`push origin --tags${force_update ? ' -f' : ''}`, kwargs, statList)
+    }
+
+    // Print Complete
+    print('\nOperation Complete.')
+    
   }
   catch ( error ) {  
+    console.error(error, error.stack.split('\n')[1])
     process.exit(1)
   }
 }
 
-function evaluateVersion(operation='patch', user, email, kwargs) {
+function evaluateVersion(kwargs) {
 // Evaluate current version and Bump
   const versionInfo = getVersionInfo(kwargs);
-  const { version,  commitPropogated, initVersion } = versionInfo;
+  const { version,  commitPropogated, initVersion, processTagOnly } = versionInfo;
 
   // If ccommitPropogated then there is a commit after latest versioning.
-  if (commitPropogated){
-
-    // Check Bump operation to be either 'major', 'minor' or 'patch'.
-    if (!['major', 'minor','patch'].includes(operation.toLowerCase())) {
-      print(`Operation '${operation}' undefined.`);
-      process.exit(1);
-    }
+  if (commitPropogated || processTagOnly ){
 
     // Extract operation from commit message
-    const commitMessage = git (`log -1 --pretty=%B`, {print_command : false, print_stdout : false})
-    match = commitMessage.match(kwargs.bump_pattern);
-    if (match){
-      command = match[1]
-      if (['major', 'minor','patch'].includes(command.toLowerCase())){
-        operation = command;
+    if (kwargs.operation == 'last_commit_message' || kwargs.test_message){
+      const commitMessage = kwargs.test_message ? kwargs.test_message : git (`log -1 --pretty=%B`, kwargs, statList, true);
+      if (commitMessage.match(escapeRegExp(kwargs.major_pattern))){kwargs.operation = 'major';}
+      else if (commitMessage.match(escapeRegExp(kwargs.minor_pattern))){kwargs.operation = 'minor';}
+      else if (commitMessage.match(escapeRegExp(kwargs.patch_pattern))){kwargs.operation = 'patch';}
+      else if (commitMessage.match(escapeRegExp(kwargs.ignore_pattern))){kwargs.operation = 'ignore';}
+      else {
+        kwargs.operation = kwargs.default_action;
       }
+
+      if (kwargs.operation == 'ignore'){
+        print(`Found ${kwargs.ignore_pattern} pattern in commit message. Auto Versioning has been cancelled.`);
+        process.exit(0)
+      }
+
+      
     }
 
-    //Get user email from CLI
-    if (user){
-      git (`config user.name "${user}"`, {print_command : false, print_stdout : false})
-    }
-
-    if (email){
-      git (`config user.name "${email}"`, {print_command : false, print_stdout : false})
-    }
-
-
-    if (!initVersion) {
+    if (!initVersion &! processTagOnly) {
       //Bump Version
-      newVersion = bumpVersion (version, operation)
-      print (`${operation} bumping from old version ${version} to new version ${newVersion}`)
+      newVersion = bumpVersion (version, kwargs)
+      print (`Opereration '${kwargs.operation}' from old version ${version} to new version ${newVersion}`)
+    } else if (initVersion){
+      print(`Version info could not extracted from ${kwargs.package_file}, assigning default ${kwargs.version_prefix}${kwargs.initial_version}`)
+      newVersion = `${kwargs.version_prefix}${kwargs.initial_version}`;
     } else {
-      print(`Version info could not extracted from ${packageFile}, assigning default ${versionPrefix}${initialVersion}`)
-      newVersion = `${versionPrefix}${initialVersion}`;
+      print(`Version info extracted from ${kwargs.package_file}, as ${version}`)
+      newVersion = `${version}`;
     }
 
     //Change Version
@@ -211,118 +240,33 @@ function evaluateVersion(operation='patch', user, email, kwargs) {
   }
 }
 
-function argParse (args) {
-  if (!args) return {};
-
-  paramArgs = { operation : 'operation', user : 'user', email : 'email'};
-
-  booleanArgs = {force_update : 'force', raise_on_error : '!ignore',  print_stdout : 'result',
-    print_command : 'command', verbose : 'verbose', silent : 'silent', help : 'help', simulate: 'simulate' }
-
-  const kwargs = {};
-  let cnt = 0;
-  // Iterate for all arguents
-  for (let i=0; i < args.length ; i++) {
-    const arg = args[i];
-    if (arg == ''){cnt++ ; continue;}
-    if (!(arg[0] == '-' || arg.substr(0,2) == '--')) continue;
-
-    //Parameter Args
-    for (let key in paramArgs) {
-      let value = paramArgs[key];
-
-      if ( value == arg.substring(2) || (value[0] == arg[1] && arg.length == 2)){
-        let paramValue;
-        try {paramValue = args[i + 1]}catch (err){print(err);process.exit(1)}
-        if (paramValue) { kwargs[key] = paramValue }
-        delete paramArgs[key];
-        cnt += 2;
-        break;
-      }
-    }
-
-    //Boolean Args
-    for (let key in booleanArgs) {
-      let value = booleanArgs[key], reverse;
-
-      if (value[0] == '!'){
-        value = value.substring(1);
-        reverse = true;
-      }
-
-      if (value == arg.substring(2) || (value[0] == arg[1] && arg.length == 2)){
-          kwargs[key] = !reverse ? true : false;
-          cnt++ ;
-      }
-    }
-  }
-
-  //Throw error on wron argument
-  if (cnt != args.length){
-    throw ('Argument Error')
-  }
-
-  return kwargs;
-}
-
-function printHelp(kwargs) {
-  const helpText = `
-  Automatic Versioning for Continuous Integration Pipelines
-
-  --operation, -o major | minor | patch      Defines the semver digit to increase. Default: patch
-  --user, -u <UserName>   Defines username of commit to repository. Default: Latest Commit User
-  --email, -e <E-mail>    Defines email of commit to repository. Default: Latest Commit Email
-  --force, -f           Forces update tag if it already exists. Default: false
-  --print-result, -r    Prints result of the git commands to the pipeline terminal. Default : false
-  --print-command, -c   Prints git commands to the pipeline terminal. Default : false
-  --ignore-error, -i    Ignores errors and continue process with next command. Default: false (NOT RECOMENDED)
-  --verbose, -v   Prints every output to the pipeline termial. Default: false
-  --silent, -s    Does not produce any output to the pipeline terminal. Default: false
-
-  Example Usage: (Assuming scripts are in .devops folder)
-
-  Force update existing tags:
-
-  node ./node_modules/ci-auto-version/auto_version.js --user UserName --email email@host.com -force
-
-  OR
-
-  Execute using sh file showing git commands and results :
-
-  sh ./node_modules/ci-auto-version/auto_version.sh -u Lorem -e ipsum@example.com -v
-
-  `
-  print(helpText)
-}
-
-function run (arg) {
+function run (argString) {
   // Get command line arguments
   let args = process.argv.slice(2);
-  if (args.length == 0){
-    args = arg;
+  if (args.length > 0){
+    argString = args.join(' ');
   }
 
   //Parse Args
   let kwArgs = {};
-  try {kwArgs = argParse(args);}
+  try {kwArgs = argParse(argString, argDefinitions);}
   catch (err){
     print(err);
-    if (err == 'Argument Error'){
-      print(`Check Command Line Options :`);
-      print(`${arg.join(' ')}`);
-      process.exit(1);
-    }
+    print(`Check Command Line Options :`);
+    print(`${argString}`);
+    process.exit(1);
+    
   }
 
   //Environment Variable
-  const envVarArguments = process.env[envVar]
+  const envVarArguments = process.env[kwArgs.env_var]
   if (envVarArguments){
     let envArgs = {};
-    try {envArgs = argParse(envVarArguments.split(' '));}
+    try {envArgs = argParse(envVarArguments, argDefinitions);}
     catch (err){
       print(err);
       if (err == 'Argument Error'){
-        print(`Check $${envVar} Environment Variable :`);
+        print(`Check $${kwArgs.env_var} Environment Variable :`);
         print(`${envVarArguments}`);
         ;process.exit(1);
       }
@@ -342,26 +286,24 @@ function run (arg) {
   //Silent
   Print.silent = kwArgs['silent']
 
-  if (kwArgs['help']){
-    printHelp(kwArgs);
-    process.exit(1);
+  // Test
+  if (kwArgs.test_run){
+    if (kwArgs.test_repo && kwArgs.test_folder){
+      try {process.chdir(kwArgs.test_folder);}
+      catch (error){
+        console.error(error)
+        process.exit(1)
+      }
+      
+      
+    } else {
+      console.error ('test_repo and test_folder should be assigned.');
+      process.exit(1);
+    }
   }
-
-  else {
-    // Call Versining Function
-    evaluateVersion(
-      operation= 'operation' in kwArgs ? kwArgs.operation : 'patch' , // Default value 'patch'
-      user= 'user' in kwArgs ? kwArgs.user : null , // Default value null
-      email= 'email' in kwArgs ? kwArgs.email : null , // Default value null
-      kwargs={
-        force_update: 'force_update' in kwArgs ? kwArgs.force_update : false , // Default value false
-        raise_on_error: 'raise_on_error' in kwArgs ? kwArgs.raise_on_error : true , // Default value true
-        print_stdout: 'print_stdout' in kwArgs ? kwArgs.print_stdout : false , // Default value false
-        print_command: 'print_command' in kwArgs ? kwArgs.print_command : false , // Default value false
-        bump_pattern: 'bump_pattern' in kwArgs ? kwArgs.bump_command : /[(\S+)]/, // Default [minor], [major]
-        simulate : 'simulate' in kwArgs ? kwArgs.simulate : false
-      });
-  }
+  // Call Versining Function
+  evaluateVersion(kwArgs);
+  
 }
 
 module.exports = run;
@@ -369,10 +311,12 @@ module.exports = run;
 const __name__ = process.argv[1].split('/').pop();
 
 if (__name__ == 'auto_version.js'){
-
+  console.log(process.argv[1])
   if (process.argv.length > 2){
-    run(process.argv.slice(2))
+    run(process.argv.slice(2).join(' '))
   } else {
-    run('--simulate'.split(' '))
+    let testRun = '--test-message "this is test [minor] "' + ' --test-run --show-args --test-folder test_folder --test-repo https://github.com/brcnblc/test_ci_auto_version.git';
+    run(testRun)
   }
 }
+

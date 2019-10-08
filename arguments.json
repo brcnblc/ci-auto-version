@@ -1,0 +1,242 @@
+{ "title" : "Automatic Versioning for Continuous Integration Pipelines",
+  "arguments" : {
+    "Operation" : {
+      "variableName" : "operation",
+      "defaultValue" : "patch",
+      "type" : "parameter",
+      "longCommand" : "operation",
+      "shortCommand" : "op",
+      "definition" : "Defines the semver digit to increase.",
+      "usage" : ["major", "minor", "patch", "ignore"]
+    },
+    "User Name" : {
+      "variableName" : "user",
+      "defaultValue" : "last_commit_author",
+      "type" : "parameter",
+      "longCommand" : "user-name",
+      "shortCommand" : "us",
+      "definition" : "Defines username of commit to repository.",
+      "usage" : ["<UserName>", "last_commit_author"]
+    },
+    "Email" : {
+      "variableName" : "email",
+      "defaultValue" : "last_commit_email",
+      "type" : "parameter",
+      "longCommand" : "email",
+      "shortCommand" : "em",
+      "definition" : "Defines email of commit to repository.",
+      "usage" : ["<E-Mail>", "last_commit_email"]
+    },
+    "Commit Message" : {
+      "variableName" : "commit_message",
+      "defaultValue" : "last_commit_message",
+      "type" : "parameter",
+      "longCommand" : "commit-message",
+      "shortCommand" : "cm",
+      "definition" : "Defines commit message of the commit to repository.",
+      "usage" : ["\"<CommitMessage>\"", "last_commit_message"]
+      
+    },
+    "Force Tag Update" : {
+      "variableName" : "force_update",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "force-tag",
+      "shortCommand" : "ft",
+      "definition" : "Forces update tag if it already exists.",
+      "usage" : null
+    },
+    "Ignore Error" : {
+      "variableName" : "raise_on_error",
+      "defaultValue" : true,
+      "type" : "boolean",
+      "reverse" : true,
+      "longCommand" : "ignore-error",
+      "shortCommand" : "ir",
+      "definition" : "Ignores errors and continue process with next command.(NOT RECOMENDED!)",
+      "usage" : null
+    },
+    "Print Git Result" : {
+      "variableName" : "print_stdout",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "print-result",
+      "shortCommand" : "pr",
+      "definition" : "Prints result of the git commands to the pipeline terminal.",
+      "usage" : null
+    },
+    "Print Git Command" : {
+      "variableName" : "print_command",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "print_command",
+      "shortCommand" : "pd",
+      "definition" : "Prints git commands to the pipeline terminal.",
+      "usage" : null
+    },
+    "Major Pattern" : {
+      "variableName" : "major_pattern",
+      "defaultValue" : "[major]",
+      "type" : "parameter",
+      "longCommand" : "major-pattern",
+      "shortCommand" : "mj",
+      "definition" : "Defines commit message pattern for major version upgrade.",
+      "usage" : "<PatternString>"
+    },
+    "Minor Pattern" : {
+      "variableName" : "minor_pattern",
+      "defaultValue" : "[minor]",
+      "type" : "parameter",
+      "longCommand" : "minor-pattern",
+      "shortCommand" : "mp",
+      "definition" : "Defines commit message pattern for minor version upgrade.",
+      "usage" : "<PatternString>"
+    },
+    "Patch Pattern" : {
+      "variableName" : "patch_pattern",
+      "defaultValue" : "[patch]",
+      "type" : "parameter",
+      "longCommand" : "patch-pattern",
+      "shortCommand" : "pp",
+      "definition" : "Defines commit message pattern for minor version upgrade.",
+      "usage" : "<PatternString>"
+    },
+    "Ignore Pattern" : {
+      "variableName" : "ignore_pattern",
+      "defaultValue" : "[ignore]",
+      "type" : "parameter",
+      "longCommand" : "ignore-pattern",
+      "shortCommand" : "gp",
+      "definition" : "Defines commit message pattern to bypass version upgrade.",
+      "usage" : "<PatternString>"
+    },
+    "Default Action" : {
+      "variableName" : "default_action",
+      "defaultValue" : "patch",
+      "type" : "parameter",
+      "longCommand" : "default-action",
+      "shortCommand" : "df",
+      "definition" : "Defines default action when no pattern matched in commit message.",
+      "usage" : ["patch", "minor", "major", "ignore"]
+    },
+    "Skip Ci Pattern" : {
+      "variableName" : "skip_ci_pattern",
+      "defaultValue" : "[skip CI]",
+      "type" : "parameter",
+      "longCommand" : "skip-ci-pattern",
+      "shortCommand" : "sp",
+      "definition" : "Defines pipeline command used in commit message, not to run pipeline.",
+      "usage" : "<PatternString>"
+    },
+    "No Skip Ci" : {
+      "variableName" : "no_skip_ci",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "no-skip-ci",
+      "shortCommand" : "ns",
+      "definition" : "Does not add skip-ci-pattern eg.[skip CI] into commit message. Pipeline runs twice but version does not change since there will be no commit on last run.",
+      "usage" : null
+    },
+    "Version Prefix" : {
+      "variableName" : "version_prefix",
+      "defaultValue" : "v",
+      "type" : "parameter",
+      "longCommand" : "version-prefix",
+      "shortCommand" : "vp",
+      "definition" : "Defines string which will be added as prefix of the version in tag name. Eg. v2.3.12",
+      "usage" : "<VersionPrefix>"
+    },
+    "Initial Version" : {
+      "variableName" : "initial_version",
+      "defaultValue" : "1.0.0",
+      "type" : "parameter",
+      "longCommand" : "initial-version",
+      "shortCommand" : "vi",
+      "definition" : "The initial value of version if no version tag is found and it can not be extracted from package file.",
+      "usage" : "<major>.<minor>.<patch>"
+    },
+    "Package File" : {
+      "variableName" : "package_file",
+      "defaultValue" : "package.json",
+      "type" : "parameter",
+      "longCommand" : "package-file",
+      "shortCommand" : "pf",
+      "definition" : "Json file in which version field will be changed.",
+      "usage" : "<PackageFileName.json>"
+    },
+    "Package Version Field" : {
+      "variableName" : "package_version_field",
+      "defaultValue" : "version",
+      "type" : "parameter",
+      "longCommand" : "version-field",
+      "shortCommand" : "pv",
+      "definition" : "Version field name which will be updated in package json file.",
+      "usage" : "<VersionFieldName>"
+    },
+    "Environment Variable Name" : {
+      "variableName" : "env_var",
+      "defaultValue" : "CI_AUTO_VERSION",
+      "type" : "parameter",
+      "longCommand" : "env-var",
+      "shortCommand" : "ev",
+      "definition" : "Environment Variable name which is used to pass arguments.",
+      "usage" : "<EnvironmentVariableName>"
+    },
+    "Simulate" : {
+      "variableName" : "simulate",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "simulate",
+      "shortCommand" : "sm",
+      "definition" : "Simulates write to file and git commands preventing permanent changes to the repo.",
+      "usage" : null
+    },
+    "Test Repo" : {
+      "variableName" : "test_repo",
+      "defaultValue" : null,
+      "type" : "parameter",
+      "longCommand" : "test-repo",
+      "shortCommand" : "tr",
+      "definition" : "Defines remote repository changes are pushed.",
+      "usage" : "<TestRepoAddress>"
+    },
+    "Test Folder" : {
+      "variableName" : "test_folder",
+      "defaultValue" : null,
+      "type" : "parameter",
+      "longCommand" : "test-folder",
+      "shortCommand" : "tf",
+      "definition" : "Defines local folder where git commands are executed.",
+      "usage" : "<TestFolderName>"
+    },
+    "Test Run" : {
+      "variableName" : "test_run",
+      "defaultValue" : null,
+      "type" : "boolean",
+      "longCommand" : "test-run",
+      "shortCommand" : "test",
+      "definition" : "Runs in test mode where git commands are executed in local test folder and changes are pushed to test repo",
+      "usage" : null
+    },
+    "Test Commit Message" : {
+      "variableName" : "test_message",
+      "defaultValue" : null,
+      "type" : "parameter",
+      "longCommand" : "test-message",
+      "shortCommand" : "tm",
+      "definition" : "Defines commit message for test purposes from where version command is extracted.",
+      "usage" : "\"<TestCommitMessage>\""
+    }
+  },
+  "examples" : {
+    "1" : {
+      "title" : "Force update existing tags",
+      "example" : "node ./node_modules/ci-auto-version/auto_version.js --user UserName --email email@host.com -force"
+    },
+    "2" : {
+      "title" :"Execute using sh file showing git commands and results",
+      "example" : "sh ./node_modules/ci-auto-version/auto_version.sh -u Lorem -e ipsum@example.com -v"
+    }
+  }
+  
+}

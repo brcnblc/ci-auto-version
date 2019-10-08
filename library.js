@@ -18,17 +18,28 @@ function git(args, kwargs, status, override_simulate ){
   
   const { raise_on_error, print_stdout, print_command, simulate, silent } = kwargs;
   const processOptions = {encoding: 'ascii', shell:true}
+  let result = {};
 
-  if (print_command){
+  const command = args.split(' ')[0]
+  const command_has_dryrun = ['add', 'commit', 'push'].includes(command)
+  if (command_has_dryrun && simulate){
+    args += (' --dry-run')
+  }
+
+  if (print_command || override_simulate || command_has_dryrun){
     console.log(`Command : git ${args}\n`)
   }
 
+
   try{
-    if (!simulate || override_simulate){
+    if (!simulate || override_simulate || command_has_dryrun){
       result = run(`git ${args}`, processOptions)
+    } else {
+      console.log (`Simulate call : git ${args}\n`)
     }
+
     if (result['stderr'] && result['status'] != 0){throw result}
-    if (print_stdout &! silent){
+    if (print_stdout &! silent || (simulate && command_has_dryrun || override_simulate)){
       console.log(`Result : ${result['stdout']}`)
       console.log(result['stderr'])
       status.push({command: `git ${args}`, result: result['stdout'], error: result['stderr']})
@@ -45,6 +56,10 @@ function git(args, kwargs, status, override_simulate ){
   }
 }
 
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}
 
 
-module.exports = { git, run, Print }
+
+module.exports = { git, run, Print, escapeRegExp }
