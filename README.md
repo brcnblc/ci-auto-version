@@ -69,12 +69,12 @@ The above code may be used to initiate your pipeline automation with full Postgr
 ##### Notes
 - Don't forget to change node version according to your package.
 - Install during pipeline is invoked with --no-save , since ci-auto-versioning script modifies package.json and pushs to original repositories master. --no-save enables that our temporary installation during pipeline stays temporary.
-- You may change ci-auto-version command line parameters. Eg. running it with --verbose or -v , will give more information about the on going process, exposing git commands and their results into the pipeline terminal.
+- You may change ci-auto-version command line parameters. Eg. running it with --verbose or -vb , will give more information about the on going process, exposing git commands and their results into the pipeline terminal.
 
 ##### Running Pipeline with Environment Variables
 
 - **ci-auto-version** uses $CI_AUTO_VERSION environment varible to pass arguments pefore running the pipeline manually. 
-- Please pass the arguments into $CI_AUTO_VERSION environment varible as string like   --force --verbose , or  -f -v   one line string.
+- Please pass the arguments into $CI_AUTO_VERSION environment varible as string like   --force --verbose , or  -ft -vb   one line string.
 - Run the pipeline manually.
 
 **Example Usage:** 
@@ -87,7 +87,7 @@ OR
 
 _Execute using sh file showing git commands and results :_ 
 ```sh
-sh ./node_modules/ci-auto-version/auto_version.sh -u Lorem -e ipsum@example.com -v
+sh ./node_modules/ci-auto-version/auto_version.sh -us Lorem -em ipsum@example.com -vb
 ```
 ###### Command Line Options
 --operation, -op [ major | minor | patch | ignore ] 
