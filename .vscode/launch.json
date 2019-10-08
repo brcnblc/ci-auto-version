@@ -1,0 +1,64 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "run",
+      "program": "${workspaceFolder}/auto_version.js"
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "run with Args",
+      "program": "${workspaceFolder}/auto_version.js",
+      "args": ["--simulate","--commit-message","\"this is test [minor] \""]
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "run patch",
+      "program": "${workspaceFolder}/test_files/patch_auto_version.js"
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "test run",
+      "program": "${workspaceFolder}/test_files/test_auto_version.js"
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "test run args",
+      "program": "${workspaceFolder}/test_files/test_auto_version.js",
+      "args": ["-si"]
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "run simulate",
+      "program": "${workspaceFolder}/test_files/simulate_auto_version.js"
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "run help",
+      "program": "${workspaceFolder}/auto_version.js",
+      "args": ["-h"]
+    }
+
+
+    
+
+  ]
+}
