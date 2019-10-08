@@ -193,9 +193,10 @@ function changeVersion(version, kwargs){
 
 function evaluateVersion(kwargs) {
 // Evaluate current version and Bump
+  
   const versionInfo = getVersionInfo(kwargs);
   const { version,  commitPropogated, initVersion, processTagOnly } = versionInfo;
-
+  
   // If ccommitPropogated then there is a commit after latest versioning.
   if (commitPropogated || processTagOnly ){
 
@@ -287,10 +288,31 @@ function run (argString) {
   if (kwArgs['verbose'] &! kwArgs['silent']) {
     kwArgs['print_stdout'] = true;
     kwArgs['print_command'] = true;
+    kwArgs['print_parameters'] = true;
+    kwArgs['print_arguments'] = true;
+    kwArgs['print_envvar'] = true;
   }
 
   //Silent
   Print.silent = kwArgs['silent']
+
+  // Print Command Line Arguments
+  if (!kwArgs.silent && kwArgs.print_arguments){
+    console.log('Command Line Arguments : ', argString, '\n')
+  }
+
+  // Print environment Variable
+  if (!kwArgs.silent && kwArgs.print_arguments){
+    console.log(`Environment Variable  $${kwArgs.env_var} : `, envVarArguments, '\n')
+    
+  }
+
+  // Print Parameters
+  if (!kwArgs.silent && kwArgs.print_parameters){
+    console.log('Parameters : ')
+    Object.entries(kwArgs).forEach((item=>console.log(item[0],'=',item[1])))
+    console.log(' ')
+  }
 
   // Test
   if (kwArgs.test_run){
@@ -307,6 +329,8 @@ function run (argString) {
       process.exit(1);
     }
   }
+
+  print(`Operation Started. \n`)
 
   //Create test commit
   if (kwArgs.create_test_commit){

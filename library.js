@@ -39,7 +39,7 @@ function git(args, kwargs, status, override_simulate ){
     }
 
     if (result['stderr'] && result['status'] != 0){throw result}
-    if (print_stdout &! silent || (simulate && command_has_dryrun || override_simulate)){
+    if (print_stdout &! silent){
       console.log(`Result : ${result['stdout']}`)
       console.log(result['stderr'])
       status.push({command: `git ${args}`, result: result['stdout'], error: result['stderr']})

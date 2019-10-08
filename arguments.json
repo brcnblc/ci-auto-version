@@ -69,9 +69,36 @@
       "variableName" : "print_command",
       "defaultValue" : false,
       "type" : "boolean",
-      "longCommand" : "print_command",
+      "longCommand" : "print-command",
       "shortCommand" : "pd",
       "definition" : "Prints git commands to the pipeline terminal.",
+      "usage" : null
+    },
+    "Print Parameters" : {
+      "variableName" : "print_parameters",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "print-parameters",
+      "shortCommand" : "pp",
+      "definition" : "Prints run time parameters to the pipeline terminal.",
+      "usage" : null
+    },
+    "Print Command Line Arguments" : {
+      "variableName" : "print_arguments",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "print-arguments",
+      "shortCommand" : "pa",
+      "definition" : "Prints command line arguments to the pipeline terminal.",
+      "usage" : null
+    },
+    "Print Environment Variable" : {
+      "variableName" : "print_envvar",
+      "defaultValue" : false,
+      "type" : "boolean",
+      "longCommand" : "print-envvar",
+      "shortCommand" : "pe",
+      "definition" : "Prints environment variable content to the pipeline terminal.",
       "usage" : null
     },
     "Verbose" : {

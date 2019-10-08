@@ -3,7 +3,6 @@ function parse (argStr, argDefs) {
   if (!argDefs) {throw('No Argument Definition provided.')}
   const args = evalStrings(argStr)
   let cnt = 0;
-  if (args.includes('--show-args') || args.includes('-sa')){console.log('Arguments : ',args);cnt++}
   if (args.includes('--help') || args.includes('-h')){
     console.log(helpText(argDefs));
     process.exit(1);
@@ -58,7 +57,7 @@ function parse (argStr, argDefs) {
   if (cnt != args.length){
     throw ('Could not handle All Arguments.')
   }
-
+  
   return kwargs;
 }
 
