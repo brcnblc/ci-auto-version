@@ -347,7 +347,7 @@ module.exports = run;
 const __name__ = process.argv[1].split('/').pop();
 
 if (__name__ == 'auto_version.js'){
-  print(`Process : ${process.argv[1]}`)
+  //print(`Process : ${process.argv[1]}`)
   if (process.argv.length > 2){
     run(process.argv.slice(2).join(' '))
   } else {

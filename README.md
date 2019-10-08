@@ -5,6 +5,9 @@
 **ci-auto-version** is designed to seemlesly intagrate semantic versioning in to your pipeline automation. It is tested under bicbucket CI Pipelines but will work on others such as gitlab as well.
 
 #### Usage
+Add [minor] or [major] into the merge commit message to upgrade respective semver digit. If nothing is added, patch upgrade will be implemented by default.
+
+#### Installation to pipeline
 sample 'bitbucket-pipelines.yml' file
 
     image: node:10.15.3
@@ -88,95 +91,125 @@ sh ./node_modules/ci-auto-version/auto_version.sh -u Lorem -e ipsum@example.com 
 ```
 ###### Command Line Options
 --operation, -op [ major | minor | patch | ignore ] 
-  Defines the semver digit to increase.
+  Definition : Defines the semver digit to increase.
+  Default Value : last_commit_message
 
 --user-name, -us [ <UserName> | last_commit_author ] 
-  Defines username of commit to repository.
+  Definition : Defines username of commit to repository.
+  Default Value : last_commit_author
 
 --email, -em [ <E-Mail> | last_commit_email ] 
-  Defines email of commit to repository.
+  Definition : Defines email of commit to repository.
+  Default Value : last_commit_email
 
 --commit-message, -cm [ "<CommitMessage>" | last_commit_message ] 
-  Defines commit message of the commit to repository.
+  Definition : Defines commit message of the commit to repository.
+  Default Value : last_commit_message
 
 --force-tag, -ft         
-  Forces update tag if it already exists.
+  Definition : Forces update tag if it already exists.
+  Default Value : false
 
 --ignore-error, -ir      
-  Ignores errors and continue process with next command.(NOT RECOMENDED!)
+  Definition : Ignores errors and continue process with next command.(NOT RECOMENDED!)
+  Default Value : true
 
 --print-result, -pr      
-  Prints result of the git commands to the pipeline terminal.
+  Definition : Prints result of the git commands to the pipeline terminal.
+  Default Value : false
 
 --print-command, -pd     
-  Prints git commands to the pipeline terminal.
+  Definition : Prints git commands to the pipeline terminal.
+  Default Value : false
 
 --print-parameters, -pp  
-  Prints run time parameters to the pipeline terminal.
+  Definition : Prints run time parameters to the pipeline terminal.
+  Default Value : false
 
 --print-arguments, -pa   
-  Prints command line arguments to the pipeline terminal.
+  Definition : Prints command line arguments to the pipeline terminal.
+  Default Value : false
 
 --print-envvar, -pe      
-  Prints environment variable content to the pipeline terminal.
+  Definition : Prints environment variable content to the pipeline terminal.
+  Default Value : false
 
 --verbose, -vb           
-  Prints all output including git commands and results to the pipeline terminal.
+  Definition : Prints all output including git commands and results to the pipeline terminal.
+  Default Value : false
 
 --silent, -si            
-  Does not print anything rather than errors to the pipeline terminal.
+  Definition : Does not print anything rather than errors to the pipeline terminal.
+  Default Value : false
 
 --major-pattern, -mj <PatternString> 
-  Defines commit message pattern for major version upgrade.
+  Definition : Defines commit message pattern for major version upgrade.
+  Default Value : [major]
 
 --minor-pattern, -mp <PatternString> 
-  Defines commit message pattern for minor version upgrade.
+  Definition : Defines commit message pattern for minor version upgrade.
+  Default Value : [minor]
 
 --patch-pattern, -pp <PatternString> 
-  Defines commit message pattern for minor version upgrade.
+  Definition : Defines commit message pattern for minor version upgrade.
+  Default Value : [patch]
 
 --ignore-pattern, -gp <PatternString> 
-  Defines commit message pattern to bypass version upgrade.
+  Definition : Defines commit message pattern to bypass version upgrade.
+  Default Value : [ignore]
 
 --default-action, -df [ patch | minor | major | ignore ] 
-  Defines default action when no pattern matched in commit message.
+  Definition : Defines default action when no pattern matched in commit message.
+  Default Value : patch
 
 --skip-ci-pattern, -sp <PatternString> 
-  Defines pipeline command used in commit message, not to run pipeline.
+  Definition : Defines pipeline command used in commit message, not to run pipeline.
+  Default Value : [skip CI]
 
 --no-skip-ci, -ns        
-  Does not add skip-ci-pattern eg.[skip CI] into commit message. Pipeline runs twice but version does not change since there will be no commit on last run.
+  Definition : Does not add skip-ci-pattern eg.[skip CI] into commit message. Pipeline runs twice but version does not change since there will be no commit on last run.
+  Default Value : false
 
 --version-prefix, -vp <VersionPrefix> 
-  Defines string which will be added as prefix of the version in tag name. Eg. v2.3.12
+  Definition : Defines string which will be added as prefix of the version in tag name. Eg. v2.3.12
+  Default Value : v
 
 --initial-version, -vi <major>.<minor>.<patch> 
-  The initial value of version if no version tag is found and it can not be extracted from package file.
+  Definition : The initial value of version if no version tag is found and it can not be extracted from package file.
+  Default Value : 1.0.0
 
 --package-file, -pf <PackageFileName.json> 
-  Json file in which version field will be changed.
+  Definition : Json file in which version field will be changed.
+  Default Value : package.json
 
 --version-field, -pv <VersionFieldName> 
-  Version field name which will be updated in package json file.
+  Definition : Version field name which will be updated in package json file.
+  Default Value : version
 
 --env-var, -ev <EnvironmentVariableName> 
-  Environment Variable name which is used to pass arguments.
+  Definition : Environment Variable name which is used to pass arguments.
+  Default Value : CI_AUTO_VERSION
 
 --simulate, -sm          
-  Simulates write to file and git commands preventing permanent changes to the repo.
+  Definition : Simulates write to file and git commands preventing permanent changes to the repo.
+  Default Value : false
 
 --test-repo, -tr <TestRepoAddress> 
-  Defines remote repository changes are pushed.
+  Definition : Defines remote repository changes are pushed.
+  Default Value : null
 
 --test-folder, -tf <TestFolderName> 
-  Defines local folder where git commands are executed.
+  Definition : Defines local folder where git commands are executed.
+  Default Value : null
 
 --test-run, -test        
-  Runs in test mode where git commands are executed in local test folder and changes are pushed to test repo
+  Definition : Runs in test mode where git commands are executed in local test folder and changes are pushed to test repo
+  Default Value : null
 
 --test-message, -tm "<TestCommitMessage>" 
-  Defines commit message for test purposes from where version command is extracted.
+  Definition : Defines commit message for test purposes from where version command is extracted.
+  Default Value : null
 
 --create-test-commit, -ct <CommitMessage> 
-  Creates a new test commit to test versioning.
-
+  Definition : Creates a new test commit to test versioning.
+  Default Value : null

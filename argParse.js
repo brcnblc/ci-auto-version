@@ -75,7 +75,7 @@ function helpText(argDefs) {
         usage = ' ' + usage + ' '
       }
       
-      return `${previous}${line}${usage}\n  ${current[1].definition}\n\n`
+      return `${previous}${line}${usage}\n  Definition : ${current[1].definition}\n  Default Value : ${current[1].defaultValue}\n\n`
     }, '')
 
     htxt += '\nExamples: \n\n'
